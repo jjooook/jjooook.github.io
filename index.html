@@ -104,6 +104,14 @@
 
   /* ---------- Stage ---------- */
   #stage{ flex:1; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
+  #site-footer{
+  flex-shrink:0; text-align:center; padding:10px 0;
+  font-size:12px; color:var(--text-tertiary);
+  border-top:1px solid var(--border);
+}
+#site-footer a{ color:var(--text-secondary); text-decoration:none; margin:0 8px; }
+#site-footer a:hover{ color:var(--accent); }
+
   #frame-sizer{ position:relative; }
   #frame{ position:absolute; top:0; left:0; transform-origin: top left; }
   .bezel{
@@ -202,6 +210,13 @@
 .tip-row{ font-size:23px; color:var(--text-tertiary); opacity:.75; line-height:1.5; white-space:nowrap; }
 
 #file-input{ display:none; }
+#site-footer{
+  flex-shrink:0; text-align:center; padding:10px 0;
+  font-size:12px; color:var(--text-tertiary);
+  border-top:1px solid var(--border);
+}
+#site-footer a{ color:var(--text-secondary); text-decoration:none; margin:0 8px; }
+#site-footer a:hover{ color:var(--accent); }
 </style>
 </head>
 <body>
@@ -224,7 +239,10 @@
     <div id="frame"></div>
   </div>
 </div>
-
+<div id="site-footer">
+  © 2026 쭉
+  <a href="/about.html">소개</a>|<a href="/privacy.html">개인정보처리방침</a>|<a href="mailto:내이메일@gmail.com">문의</a>
+</div>
 <input type="file" id="file-input" multiple accept="image/jpeg,image/png,image/webp">
 
 <script>
