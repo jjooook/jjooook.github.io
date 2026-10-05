@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-D94ZNZS697"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-D94ZNZS697');
+</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4791826657256369"
+     crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>쭉 — 웹툰 뷰어</title>
+<style>
+  :root{
+    --bg-canvas:#0E0E12;
+    --bg-panel:#17171C;
+    --bg-elevated:#1F1F26;
+    --accent:#FFC93C;
+    --text-primary:#F2F2F5;
+    --text-secondary:#8A8A94;
+    --text-tertiary:#5C5C66;
+    --border:#2A2A32;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:var(--bg-canvas);
+    color:var(--text-primary);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+      user-select:none;          /* 추가 */
+  -webkit-user-select:none;  /* 추가 */
+  }
+
+  /* ---------- Top bar ---------- */
+  #topbar{
+    flex-shrink:0;
+    height:60px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 20px;
+    border-bottom:1px solid var(--border);
+    position:relative;
+    z-index:20;
+  }
+  .brand{ font-size:20px; font-weight:800; letter-spacing:-0.02em; }
+  .brand::after{ content:'.'; color:var(--accent); }
+
+  .topbar-center{ position:relative; }
+  #device-btn{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--bg-elevated);
+    border:1px solid var(--border);
+    color:var(--text-primary);
+    font-size:13px;
+    font-weight:600;
+    padding:8px 14px;
+    border-radius:20px;
+    cursor:pointer;
+    transition:border-color .15s;
+  }
+  #device-btn:hover{ border-color:#3a3a44; }
+  #device-btn .ratio-chip{
+    font-size:11px; font-weight:600; color:var(--text-tertiary);
+    background:rgba(255,255,255,0.05); padding:2px 7px; border-radius:20px;
+  }
+  #device-btn svg{ width:13px; height:13px; color:var(--text-tertiary); transition:transform .15s; }
+  #device-btn.open svg{ transform:rotate(180deg); }
+
+  #clear-btn{
+    background:transparent; border:1px solid var(--border); color:var(--text-secondary);
+    font-size:12.5px; font-weight:600; padding:8px 14px; border-radius:20px; cursor:pointer;
+    transition:color .15s, border-color .15s;
+  }
+  #clear-btn:hover{ color:#FF7A6E; border-color:#4a2c28; }
+
+  /* device dropdown */
+  #device-panel{
+    position:absolute; top:46px; left:50%; transform:translateX(-50%);
+    width:340px; max-height:min(70vh, 520px); overflow-y:auto;
+    background:var(--bg-panel); border:1px solid var(--border); border-radius:12px;
+    box-shadow:0 20px 40px -10px rgba(0,0,0,.5);
+    display:none; padding:6px;
+  }
+  #device-panel.open{ display:block; }
+  .group-label{ font-size:10.5px; font-weight:700; color:var(--text-tertiary); padding:10px 10px 6px; }
+  .device-row{ padding:9px 11px; border-radius:8px; cursor:pointer; }
+  .device-row:hover{ background:var(--bg-elevated); }
+  .device-row.active{ background:rgba(255,201,60,0.08); }
+  .device-row.active .device-row-name{ color:var(--accent); }
+  .device-row-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .device-row-name{ font-size:13.5px; font-weight:600; color:var(--text-primary); }
+  .device-row-ratio{ color:var(--text-tertiary); font-size:11.5px; font-variant-numeric:tabular-nums; }
+  .device-row-sub{ margin-top:3px; font-size:11px; color:var(--text-tertiary); line-height:1.5; }
+
+  /* ---------- Stage ---------- */
+  #stage{ flex:1; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
+  #frame-sizer{ position:relative; }
+  #frame{ position:absolute; top:0; left:0; transform-origin: top left; }
+  .bezel{
+    background:linear-gradient(165deg,#2a2a2f,#0a0a0c 55%);
+    border-radius:var(--bz-radius,46px);
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.04);
+  }
+  .screen{
+    position:relative; background:#000;
+    border-radius:var(--sc-radius,34px);
+    overflow-y:auto; overflow-x:hidden;
+    scrollbar-width:none;
+    cursor:grab;
+    user-select:none;
+  }
+  .screen::-webkit-scrollbar{ display:none; }
+  .screen.grabbing{ cursor:grabbing; }
+
+  #frame.drag-active .bezel{ outline:3px dashed var(--accent); outline-offset:4px; }
+
+  .cut-wrap img{
+    display:block; width:690px; height:auto;
+    user-select:none; -webkit-user-drag:none; pointer-events:none;
+  }
+
+  /* status bar overlay -- 2x size */
+  .status-bar{
+    position:absolute; top:0; left:0; right:0; height:78px;
+    display:flex; align-items:flex-start; justify-content:space-between;
+    padding:22px 26px 0;
+    pointer-events:none; z-index:5;
+    background:linear-gradient(to bottom, rgba(0,0,0,.4), rgba(0,0,0,0));
+  }
+  .status-time{ color:#fff; font-size:28px; font-weight:600; text-shadow:0 1px 3px rgba(0,0,0,.35); }
+  .status-icons{ display:flex; gap:10px; align-items:center; }
+  .status-icons svg{ width:32px; height:24px; color:#fff; filter:drop-shadow(0 1px 3px rgba(0,0,0,.35)); }
+
+  .island{
+    position:absolute; top:21px; left:50%; transform:translateX(-50%);
+    width:100px; height:30px; background:#000; border-radius:20px; z-index:6;
+  }
+  .punch-hole{
+    position:absolute; top:24px; left:50%; transform:translateX(-50%);
+    width:11px; height:11px; background:#000; border-radius:50%; z-index:6;
+    box-shadow:0 0 0 2px #050506;
+  }
+  .home-indicator{
+    position:absolute; bottom:8px; left:50%; transform:translateX(-50%);
+    width:120px; height:4px; background:#fff; border-radius:3px;
+    mix-blend-mode:difference; z-index:6;
+  }
+  .scrollbar-track{
+  position:absolute;
+  top:0; right:-36px;
+  width:25px;
+  border-radius:3px;
+  z-index:15;
+  opacity:0;
+  transition:opacity .2s ease;
+  pointer-events:none;
+    }
+    .scrollbar-track.visible{ opacity:1; pointer-events:auto; }
+    .scrollbar-thumb{
+    position:absolute;
+    left:0; width:100%;
+    background:rgba(255,255,255,.35);
+    border-radius:5px;
+    cursor:pointer;
+    transition:background .15s;
+    }
+    .scrollbar-thumb:hover,
+    .scrollbar-thumb.dragging{ background:rgba(255,255,255,.6); 
+    }
+
+    body.no-select, body.no-select *{
+  user-select:none !important;
+  -webkit-user-select:none !important;
+}
+.empty-screen{
+  height:100%; display:flex; align-items:center; justify-content:center;
+  flex-direction:column; gap:26px; color:var(--text-tertiary);
+  text-align:center; padding:0 14px; cursor:pointer;
+}
+.empty-screen svg{ width:120px; height:120px; opacity:.4; }
+
+.empty-main{ display:flex; flex-direction:column; gap:14px; }
+.empty-main p{ font-size:32px; line-height:1.6; color:var(--text-primary); font-weight:500; }
+.empty-main .hint{ font-size:25px; color:var(--text-tertiary); white-space:nowrap; }
+
+.empty-tips{
+  display:flex; flex-direction:column; gap:12px;
+  padding-top:24px;
+  border-top:1px solid var(--border);
+  width:100%; max-width:620px;
+}
+.tip-row{ font-size:23px; color:var(--text-tertiary); opacity:.75; line-height:1.5; white-space:nowrap; }
+
+#file-input{ display:none; }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand">쭉</div>
+  <div class="topbar-center">
+    <button id="device-btn">
+      <span id="device-btn-label">아이폰</span>
+      <span class="ratio-chip" id="device-btn-ratio">19.5:9</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div id="device-panel"></div>
+  </div>
+  <button id="clear-btn">Clear</button>
+</div>
+
+<div id="stage">
+  <div id="frame-sizer">
+    <div id="frame"></div>
+  </div>
+</div>
+
+<input type="file" id="file-input" multiple accept="image/jpeg,image/png,image/webp">
+
+<script>
+(function(){
+  const CONTENT_WIDTH = 690;
+
+  // 비율 중심으로 정리. ratio = height / width
+  const DEVICES = [
+    {
+      group:'iPhone', name:'아이폰', label:'19.5:9', ratio:19.5/9, kind:'island',
+      sub:'iPhone 12 ~ 17 (Air 포함) 전체 라인업 — 화면비 전부 동일'
+    },
+    {
+      group:'Galaxy', name:'갤럭시', label:'20:9', ratio:20/9, kind:'hole',
+      sub:'S20 / S20+ / S20 Ultra / S21 / S21+ / S21 Ultra'
+    },
+    {
+      group:'Galaxy', name:'갤럭시', label:'19.5:9', ratio:19.5/9, kind:'hole',
+      sub:'S22 / S22+ / S23 / S23+ / S24 / S24+ / S24 Ultra / S25 / S25+ / S25 Ultra / S26 / S26+ / S26 Ultra'
+    },
+    {
+      group:'Galaxy', name:'갤럭시', label:'19.3:9', ratio:19.3/9, kind:'hole',
+      sub:'S22 Ultra / S23 Ultra'
+    },
+  ];
+
+  const state = { images: [], deviceIndex: 0, panelOpen: false };
+  let uid = 0;
+
+  const deviceBtn = document.getElementById('device-btn');
+  const deviceBtnLabel = document.getElementById('device-btn-label');
+  const deviceBtnRatio = document.getElementById('device-btn-ratio');
+  const devicePanel = document.getElementById('device-panel');
+  const clearBtn = document.getElementById('clear-btn');
+  const stage = document.getElementById('stage');
+  const frameSizer = document.getElementById('frame-sizer');
+  const frame = document.getElementById('frame');
+  const fileInput = document.getElementById('file-input');
+
+  const IMG_RE = /\.(jpe?g|png|webp)$/i;
+
+  function naturalSort(a, b){
+    return a.localeCompare(b, 'ko-KR', { numeric:true, sensitivity:'base' });
+  }
+
+  // ---------- file intake ----------
+  function addFiles(fileArr){
+    const imgs = fileArr.filter(f => IMG_RE.test(f.name));
+    if(!imgs.length) return;
+    imgs.forEach(f => {
+      const id = ++uid;
+      const url = URL.createObjectURL(f);
+      const entry = { id, name:f.name, url, loaded:false };
+      state.images.push(entry);
+      const im = new Image();
+      im.onload = () => { entry.loaded = true; renderFrame(); };
+      im.src = url;
+    });
+    state.images.sort((a,b) => naturalSort(a.name, b.name));
+    renderFrame();
+  }
+
+  function clearAll(){
+    state.images.forEach(i => URL.revokeObjectURL(i.url));
+    state.images = [];
+    renderFrame();
+  }
+
+  function traverseEntry(entry, out){
+    return new Promise(resolve => {
+      if(entry.isFile){
+        entry.file(file => { out.push(file); resolve(); }, () => resolve());
+      } else if(entry.isDirectory){
+        const reader = entry.createReader();
+        const readBatch = () => {
+          reader.readEntries(async entries => {
+            if(!entries.length){ resolve(); return; }
+            await Promise.all(entries.map(e => traverseEntry(e, out)));
+            readBatch();
+          }, () => resolve());
+        };
+        readBatch();
+      } else resolve();
+    });
+  }
+
+  // ---------- drag & drop directly on the phone frame ----------
+  ['dragenter','dragover'].forEach(evt => {
+    frame.addEventListener(evt, e => {
+      e.preventDefault(); e.stopPropagation();
+      frame.classList.add('drag-active');
+    });
+  });
+  frame.addEventListener('dragleave', e => {
+    e.preventDefault(); e.stopPropagation();
+    if(e.target === frame) frame.classList.remove('drag-active');
+  });
+  frame.addEventListener('drop', async e => {
+    e.preventDefault(); e.stopPropagation();
+    frame.classList.remove('drag-active');
+    const items = e.dataTransfer.items;
+    if(items && items.length && items[0].webkitGetAsEntry){
+      const out = [];
+      const entries = Array.from(items).map(it => it.webkitGetAsEntry()).filter(Boolean);
+      await Promise.all(entries.map(en => traverseEntry(en, out)));
+      addFiles(out);
+    } else {
+      addFiles(Array.from(e.dataTransfer.files || []));
+    }
+  });
+  frame.addEventListener('click', e => {
+    if(e.target.closest('.empty-screen')) fileInput.click();
+  });
+  fileInput.addEventListener('change', e => {
+    addFiles(Array.from(e.target.files || []));
+    fileInput.value = '';
+  });
+
+  clearBtn.addEventListener('click', clearAll);
+
+  // ---------- click & drag to scroll ----------
+  let dragScroll = { active:false, startY:0, startTop:0, el:null, moved:false };
+
+let currentScale = 1;
+let sbState = { hideTimer:null, dragging:false, dragStartY:0, dragStartTop:0, screenEl:null };
+
+function setupScrollbar(){
+  const screenEl = frame.querySelector('.screen');
+  const track = document.getElementById('scrollbar-track');
+  const thumb = document.getElementById('scrollbar-thumb');
+  if(!screenEl || !track || !thumb) return;
+
+  sbState.screenEl = screenEl;
+
+  function updateThumb(){
+    const trackH = track.clientHeight;
+    const ratio = Math.min(1, (screenEl.clientHeight / screenEl.scrollHeight) * 1.5); // 1.5배 부풀림
+    if(ratio >= 1){ track.style.display = 'none'; return; }
+    track.style.display = '';
+    const thumbH = Math.max(48, trackH * ratio);
+    const maxThumbTop = trackH - thumbH;
+    const maxScroll = screenEl.scrollHeight - screenEl.clientHeight;
+    const scrollRatio = maxScroll > 0 ? screenEl.scrollTop / maxScroll : 0;
+    thumb.style.height = thumbH + 'px';
+    thumb.style.top = (maxThumbTop * scrollRatio) + 'px';
+  }
+
+  function showTrack(){
+    track.classList.add('visible');
+    clearTimeout(sbState.hideTimer);
+    sbState.hideTimer = setTimeout(() => {
+      if(!sbState.dragging) track.classList.remove('visible');
+    }, 900);
+  }
+
+  screenEl.addEventListener('scroll', () => { updateThumb(); showTrack(); });
+  screenEl.addEventListener('mouseenter', () => { clearTimeout(sbState.hideTimer); track.classList.add('visible'); });
+  screenEl.addEventListener('mouseleave', () => { if(!sbState.dragging) showTrack(); });
+  track.addEventListener('mouseenter', () => { clearTimeout(sbState.hideTimer); track.classList.add('visible'); });
+  track.addEventListener('mouseleave', () => { if(!sbState.dragging) showTrack(); });
+
+  thumb.addEventListener('mousedown', e => {
+    e.stopPropagation();
+    sbState.dragging = true;
+    sbState.dragStartY = e.clientY;
+    sbState.dragStartTop = screenEl.scrollTop;
+    sbState.trackH = track.clientHeight;
+    thumb.classList.add('dragging');
+    track.classList.add('visible');
+    document.body.classList.add('no-select'); 
+  });
+
+  track.addEventListener('click', e => {
+    if(e.target === thumb) return;
+    const rect = track.getBoundingClientRect();
+    const clickRatio = (e.clientY - rect.top) / rect.height;
+    const maxScroll = screenEl.scrollHeight - screenEl.clientHeight;
+    screenEl.scrollTop = clickRatio * maxScroll;
+  });
+
+  updateThumb();
+}
+frame.addEventListener('wheel', e => {
+  if(!e.shiftKey) return;
+
+  const screenEl = frame.querySelector('.screen');
+  if(!screenEl) return;
+
+  e.preventDefault();
+  const delta = e.deltaY !== 0 ? e.deltaY : e.deltaX; // 여기가 핵심
+  screenEl.scrollTop += delta * 3;
+}, { passive:false });
+
+document.addEventListener('mousemove', e => {
+  if(!sbState.dragging || !sbState.screenEl) return;
+  const screenEl = sbState.screenEl;
+  const dy = (e.clientY - sbState.dragStartY) / currentScale;
+  const ratio = dy / sbState.trackH;
+  const maxScroll = screenEl.scrollHeight - screenEl.clientHeight;
+  screenEl.scrollTop = sbState.dragStartTop + ratio * maxScroll;
+});
+document.addEventListener('mouseup', () => {
+  if(sbState.dragging){
+    sbState.dragging = false;
+    document.querySelectorAll('.scrollbar-thumb.dragging').forEach(t => t.classList.remove('dragging'));
+    const track = document.getElementById('scrollbar-track');
+    if(track){
+      clearTimeout(sbState.hideTimer);
+      sbState.hideTimer = setTimeout(() => track.classList.remove('visible'), 900);
+    }
+    document.body.classList.remove('no-select'); 
+  }
+});
+
+
+  frame.addEventListener('mousedown', e => {
+    const screenEl = e.target.closest('.screen');
+    if(!screenEl) return;
+    //preventDefault();
+    dragScroll = { active:true, startY:e.clientY, startTop:screenEl.scrollTop, el:screenEl, moved:false };
+    screenEl.classList.add('grabbing');
+    document.body.classList.add('no-select'); 
+  });
+document.addEventListener('mousemove', e => {
+  if(!dragScroll.active) return;
+  const dy = (e.clientY - dragScroll.startY) / currentScale;
+  if(Math.abs(dy) > 3) dragScroll.moved = true;
+  dragScroll.el.scrollTop = dragScroll.startTop - dy;
+  document.body.classList.remove('no-select');
+});
+document.addEventListener('selectstart', e => {
+  if(dragScroll.active || sbState.dragging) e.preventDefault();
+});
+  document.addEventListener('mouseup', () => {
+    if(dragScroll.el) dragScroll.el.classList.remove('grabbing');
+    dragScroll = { active:false, startY:0, startTop:0, el:null, moved:false };
+  });
+
+  // ---------- device picker ----------
+  function renderDevicePanel(){
+    const groups = ['iPhone','Galaxy'];
+    devicePanel.innerHTML = groups.map(g => `
+      <div class="group-label">${g}</div>
+      ${DEVICES.map((d,i) => d.group===g ? `
+        <div class="device-row ${i===state.deviceIndex?'active':''}" data-idx="${i}">
+          <div class="device-row-top">
+            <span class="device-row-name">${d.name}</span>
+            <span class="device-row-ratio">${d.label}</span>
+          </div>
+          <div class="device-row-sub">${d.sub}</div>
+        </div>
+      ` : '').join('')}
+    `).join('');
+    devicePanel.querySelectorAll('.device-row').forEach(el => {
+      el.addEventListener('click', () => {
+        state.deviceIndex = parseInt(el.dataset.idx,10);
+        closePanel();
+        renderFrame();
+      });
+    });
+  }
+  function openPanel(){ state.panelOpen = true; devicePanel.classList.add('open'); deviceBtn.classList.add('open'); }
+  function closePanel(){ state.panelOpen = false; devicePanel.classList.remove('open'); deviceBtn.classList.remove('open'); }
+  deviceBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    state.panelOpen ? closePanel() : (renderDevicePanel(), openPanel());
+  });
+  document.addEventListener('click', e => {
+    if(state.panelOpen && !devicePanel.contains(e.target) && e.target !== deviceBtn) closePanel();
+  });
+
+  // ---------- phone frame render ----------
+  const BEZEL = { island:{side:12,top:12,bottom:12}, hole:{side:12,top:12,bottom:12} };
+  const RADIUS = { island:{bz:54,sc:42}, hole:{bz:44,sc:32} };
+
+  function escapeHtml(s){
+    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function renderFrame(){
+    const dev = DEVICES[state.deviceIndex];
+    deviceBtnLabel.textContent = dev.name;
+    deviceBtnRatio.textContent = dev.label;
+
+    const bz = BEZEL[dev.kind];
+    const rad = RADIUS[dev.kind];
+
+    const screenW = CONTENT_WIDTH;
+    const screenH = Math.round(CONTENT_WIDTH * dev.ratio);
+    const outerW = screenW + bz.side*2;
+    const outerH = screenH + bz.top + bz.bottom;
+
+    let chrome = `<div class="home-indicator"></div>`;
+    if(dev.kind === 'island') chrome += `<div class="island"></div>`;
+    if(dev.kind === 'hole') chrome += `<div class="punch-hole"></div>`;
+
+    const statusBar = `
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <span class="status-icons">
+          <svg viewBox="0 0 20 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="0.5"/><rect x="5" y="5" width="3" height="7" rx="0.5"/><rect x="10" y="2" width="3" height="10" rx="0.5"/><rect x="15" y="0" width="3" height="12" rx="0.5"/></svg>
+          <svg viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1" y="1" width="19" height="10" rx="2.5"/><rect x="2.5" y="2.5" width="14" height="7" fill="currentColor" stroke="none"/><path d="M21.5 4.5v3" stroke-linecap="round"/></svg>
+        </span>
+      </div>`;
+
+    let content;
+    if(!state.images.length){
+content = `
+  <div class="empty-screen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 16V4M12 4l-4 4M12 4l4 4"/>
+      <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>
+    </svg>
+    <div class="empty-main">
+      <p>여기에 원고 파일을<br>드래그하거나 탭해서 올려보세요</p>
+      <span class="hint">jpg · png · webp</span>
+    </div>
+    <div class="empty-tips">
+      <div class="tip-row">⇧ Shift + 스크롤 — 3배속 스크롤</div>
+      <div class="tip-row">서버 저장 없음 — 창을 닫으면 자동 삭제</div>
+    </div>
+  </div>`;
+    } else {
+      content = state.images.filter(i => i.loaded).map(img => `
+        <div class="cut-wrap"><img src="${img.url}" alt="${escapeHtml(img.name)}"></div>
+      `).join('');
+    }
+
+    frame.innerHTML = `
+    <div class="bezel" style="width:${outerW}px;height:${outerH}px;padding:${bz.top}px ${bz.side}px ${bz.bottom}px;--bz-radius:${rad.bz}px;">
+        <div class="screen" style="width:${screenW}px;height:${screenH}px;--sc-radius:${rad.sc}px;">
+        ${statusBar}
+        ${content}
+        </div>
+        ${chrome}
+    </div>
+    <div class="scrollbar-track" id="scrollbar-track" style="top:${bz.top}px;height:${screenH}px;">
+        <div class="scrollbar-thumb" id="scrollbar-thumb"></div>
+    </div>`;                  
+
+    frame.style.width = outerW + 'px';
+    frame.style.height = outerH + 'px';
+
+    layoutStage(outerW, outerH);
+    setupScrollbar(); 
+  }
+
+  function layoutStage(outerW, outerH){
+    const availW = stage.clientWidth - 64;
+    const availH = stage.clientHeight - 64;
+    const scale = Math.min(1, availW/outerW, availH/outerH);
+    frame.style.transform = `scale(${scale})`;
+    frameSizer.style.width = (outerW*scale) + 'px';
+    frameSizer.style.height = (outerH*scale) + 'px';
+    currentScale = scale;
+  }
+
+  window.addEventListener('resize', () => renderFrame());
+  new ResizeObserver(() => renderFrame()).observe(stage);
+
+  renderFrame();
+})();
+</script>
+</body>
+</html>
