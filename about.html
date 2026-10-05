@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>소개 — 쭉 웹툰 뷰어</title>
+<meta name="description" content="쭉은 웹툰 원고를 아이폰·갤럭시 화면 비율로 미리 볼 수 있는 무료 웹툰 뷰어입니다. 파일은 서버에 저장되지 않습니다.">
+<style>
+:root{--bg:#0E0E12;--panel:#17171C;--accent:#FFC93C;--text:#F2F2F5;--sub:#A0A0AA;--border:#2A2A32}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;line-height:1.8;font-size:16px}
+header{border-bottom:1px solid var(--border);padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-size:20px;font-weight:800;color:var(--text);text-decoration:none}
+.brand::after{content:".";color:var(--accent)}
+header a.back{color:var(--sub);font-size:13.5px;text-decoration:none}
+header a.back:hover{color:var(--accent)}
+main{max-width:720px;margin:0 auto;padding:48px 20px 72px}
+h1{font-size:28px;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px}
+.updated{color:var(--sub);font-size:13px;margin-bottom:36px}
+h2{font-size:18px;font-weight:700;margin:36px 0 10px}
+p,li{color:#D4D4DA}
+p{margin-bottom:12px}
+ul{padding-left:22px;margin-bottom:12px}
+li{margin-bottom:6px}
+a{color:var(--accent)}
+footer{border-top:1px solid var(--border);padding:24px 20px;text-align:center;color:var(--sub);font-size:13px}
+footer a{color:var(--sub);text-decoration:none;margin:0 8px}
+footer a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<header><a class="brand" href="/">쭉</a><a class="back" href="/">뷰어로 돌아가기</a></header>
+<main>
+<h1>쭉 소개</h1>
+<p class="updated">웹툰 원고를 휴대폰 화면으로 미리 보는 무료 도구</p>
+
+<h2>쭉은 어떤 서비스인가요?</h2>
+<p>쭉은 웹툰 작가와 지망생이 작업한 원고 이미지를 데스크톱에서 실제 휴대폰 화면처럼 스크롤하며 확인할 수 있는 웹 뷰어입니다. 컷 사이의 간격, 글자 크기, 세로 호흡이 독자 화면에서 어떻게 보이는지 업로드 전에 미리 확인할 수 있습니다.</p>
+
+<h2>주요 기능</h2>
+<ul>
+<li><strong>휴대폰 프레임 미리보기:</strong> 이미지를 올리면 휴대폰 모양 화면 안에서 위아래로 이어서 볼 수 있습니다.</li>
+<li><strong>기기 화면비 선택:</strong> 아이폰(19.5:9), 갤럭시(20:9, 19.5:9, 19.3:9) 등 실제 기기 비율로 전환해 볼 수 있습니다.</li>
+<li><strong>여러 파일을 한 번에:</strong> 파일 여러 개를 드래그하면 파일명 순서대로 정렬되어 이어 붙습니다.</li>
+<li><strong>마우스 드래그 스크롤:</strong> 화면을 잡고 끌어서 스크롤할 수 있고, Shift를 누른 채 휠을 돌리면 3배속으로 넘어갑니다.</li>
+<li><strong>서버 저장 없음:</strong> 이미지는 내 브라우저에서만 처리되며 창을 닫으면 사라집니다.</li>
+</ul>
+
+<h2>사용 방법</h2>
+<ul>
+<li>상단의 기기 버튼에서 확인하고 싶은 기기를 고릅니다.</li>
+<li>jpg, png, webp 원고 파일을 드래그&드롭하거나, 화면을 눌러 파일을 선택합니다.</li>
+<li>스크롤하며 컷 간격과 가독성을 확인합니다.</li>
+<li>다른 원고를 보려면 오른쪽 위 Clear 버튼으로 비운 뒤 다시 올립니다.</li>
+</ul>
+
+<h2>자주 묻는 질문</h2>
+<p><strong>Q. 올린 파일이 서버에 저장되나요?</strong><br>아니요. 이미지는 브라우저 안에서만 열리며 어디로도 전송되지 않습니다.</p>
+<p><strong>Q. 어떤 형식을 지원하나요?</strong><br>jpg, png, webp를 지원합니다.</p>
+<p><strong>Q. 이미지 순서는 어떻게 정해지나요?</strong><br>파일명 기준 자연 정렬입니다. 01, 02, 03처럼 번호를 붙여 두면 의도한 순서대로 이어집니다.</p>
+<p><strong>Q. 사용료가 있나요?</strong><br>무료입니다. 사이트 운영을 위해 광고가 표시될 수 있습니다.</p>
+
+<h2>문의</h2>
+<p>의견, 오류 제보, 기능 제안은 <a href="khsx007@naver.com">khsx007@naver.com</a>으로 보내주세요.</p>
+</main>
+<footer><div>© 2026 쭉. All rights reserved.</div><div style="margin-top:6px"><a href="/about.html">소개</a>|<a href="/privacy.html">개인정보처리방침</a>|<a href="mailto:khsx007@naver.com">문의</a></div></footer>
+</body>
+</html>
