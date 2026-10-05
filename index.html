@@ -517,7 +517,12 @@ document.addEventListener('selectstart', e => {
   // ---------- phone frame render ----------
   const BEZEL = { island:{side:12,top:12,bottom:12}, hole:{side:12,top:12,bottom:12} };
   const RADIUS = { island:{bz:54,sc:42}, hole:{bz:44,sc:32} };
-
+function nowTime(){
+  const d = new Date();
+  let h = d.getHours() % 12;
+  if(h === 0) h = 12;
+  return h + ':' + String(d.getMinutes()).padStart(2, '0');
+}
   function escapeHtml(s){
     return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
@@ -541,7 +546,7 @@ document.addEventListener('selectstart', e => {
 
     const statusBar = `
       <div class="status-bar">
-        <span class="status-time">9:41</span>
+        <span class="status-time">${nowTime()}</span>
         <span class="status-icons">
           <svg viewBox="0 0 20 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="0.5"/><rect x="5" y="5" width="3" height="7" rx="0.5"/><rect x="10" y="2" width="3" height="10" rx="0.5"/><rect x="15" y="0" width="3" height="12" rx="0.5"/></svg>
           <svg viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1" y="1" width="19" height="10" rx="2.5"/><rect x="2.5" y="2.5" width="14" height="7" fill="currentColor" stroke="none"/><path d="M21.5 4.5v3" stroke-linecap="round"/></svg>
@@ -601,6 +606,7 @@ content = `
   }
 
   window.addEventListener('resize', () => renderFrame());
+  
   new ResizeObserver(() => renderFrame()).observe(stage);
 
   renderFrame();
